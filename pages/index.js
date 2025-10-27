@@ -1,43 +1,51 @@
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Home() {
-  const [appointments, setAppointments] = useState([]);
-  const [form, setForm] = useState({ name: '', date: '' });
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const addAppointment = () => {
-    if (!form.name || !form.date) return;
-    setAppointments([...appointments, form]);
-    setForm({ name: '', date: '' });
+  const sendPrompt = async () => {
+    if (!prompt) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+    } catch (err) {
+      setResponse("Errore nella richiesta AI: " + err.message);
+    }
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold mb-6">BarberAI Prenotazioni</h1>
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Nome cliente"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border rounded p-2"
-        />
-        <input
-          type="datetime-local"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
-          className="border rounded p-2"
-        />
-        <button onClick={addAppointment} className="bg-blue-600 text-white px-4 py-2 rounded">Aggiungi</button>
-      </div>
-      <ul className="w-full max-w-md">
-        {appointments.map((a, i) => (
-          <li key={i} className="border-b py-2 flex justify-between">
-            <span>{a.name}</span>
-            <span>{new Date(a.date).toLocaleString()}</span>
-          </li>
-        ))}
-      </ul>
+      <h1 className="text-3xl font-bold mb-6">BarberAI Prenotazioni + AI</h1>
+
+      <textarea
+        className="border rounded p-2 w-full max-w-md mb-2"
+        rows={4}
+        placeholder="Scrivi qui il prompt per l'assistente AI..."
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+      />
+      <button
+        onClick={sendPrompt}
+        disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+      >
+        {loading ? "Caricamento..." : "Invia"}
+      </button>
+
+      <pre className="w-full max-w-md bg-white border p-4 rounded text-sm whitespace-pre-wrap">
+        {response}
+      </pre>
     </div>
   );
 }
