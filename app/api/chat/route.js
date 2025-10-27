@@ -22,6 +22,8 @@ export async function POST(req) {
 
     const data = await response.json();
     
+    console.log(data.reply);
+    
     const cleanContent = data.choices?.[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
     return new Response(JSON.stringify({ reply: cleanContent }), { status: 200 });
 
@@ -30,6 +32,7 @@ export async function POST(req) {
     return new Response(JSON.stringify({ error: 'Groq request failed', details: err.message }), { status: 500 });
   }
 }
+
 
 
 
