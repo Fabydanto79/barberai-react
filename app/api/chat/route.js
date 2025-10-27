@@ -15,7 +15,7 @@ export async function POST(req) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'mixtral-8x7b',
+        model: 'qwen/qwen3-32b',
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -26,3 +26,4 @@ export async function POST(req) {
     return new Response(JSON.stringify({ error: 'Groq request failed', details: err.message }), { status: 500 });
   }
 }
+
